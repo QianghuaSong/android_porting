@@ -1,0 +1,142 @@
+0.环境检查
+gcc需要4.3以上版本
+gcc --version
+gcc (Ubuntu/Linaro 4.6.3-1ubuntu5) 4.6.3
+Copyright (C) 2011 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+cmake v2.6及以上
+cmake --version
+cmake version 2.8.7
+
+
+1.安装Android NDK
+ 1. 从官网下载 http://wear.techbrood.com/tools/sdk/ndk/
+ 2. 在~/.bashrc文件最后添加. export PATH=/home/ckt/work/wxie/tools/android-ndk-r12b-linux-x86_64/android-ndk-r12b:$PATH
+安装Android SDK
+ 1. 从官网下载或者后内部共享获取;\SmartPhone\tools\01.developer\03.Develop Env(IDE,JDK,Ubuntu,Git...)\02.Android SDK
+ 2. 解压后放在电脑本地，待用。
+安装Cmake
+ 1. 下载Cmake, https://cmake.org/
+ 2. 解压放在本地，然后修改 ~/.bashrc 文件，在最后加入export PATH=/home/ckt/work/wxie/tools/cmake-3.7.0-rc2-Linux-x86_64/bin:$PATH， 注意路径是你cmake在你电脑上的路径。
+安装Apache Ant：http://archive.apache.org/dist/ant/binaries/
+
+2.配置环境变量
+
+在opencv-3.1.0/中执行如下命令:
+$ source ~/.bashrc (让第二步中的配置生效)
+$ export ANDROID_NDK=/home/ckt/work/workspace/android-ndk-r12b
+$ export ANDROID_ABI=armeabi-v7a (编译32bits库)
+$ export ANDROID_NATIVE_API_LEVEL=android-22  (指定使用的SDK API level)
+$ export ANDROID_TOOLCHAIN_NAME=arm-linux-androideabi-4.9 (指定使用的GCC版本)
+$ export ANDROID_JAVA_HOME=/home/ckt/env/jdk1.7.0_75
+$ export ANT_HOME=/home/ckt/work/workspace/apache-ant-1.9.4
+
+3.opencv安装
+OpenCV源码下载，下载3.0版本否则make时会出现如下错误。
+3.1版本可从\\10.120.10.100\ckt_cd_share\SmartPhone\team\Framework\Image\Dev\opencv-3.1.0-linux.zip获取。
+[ 21%] Building CXX object modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_ffmpeg.cpp.o
+In file included from /home/.../Downloads/opencv-3.0.0/modules/videoio/src/cap_ffmpeg.cpp:45:0:
+/home/.../Downloads/opencv-3.0.0/modules/videoio/src/cap_ffmpeg_impl.hpp:1546:71: error: use of enum ‘AVCodecID’ without previous declaration
+/home/.../Downloads/opencv-3.0.0/modules/videoio/src/cap_ffmpeg_impl.hpp:1556:83: error: use of enum ‘AVCodecID’ without previous declaration
+make[2]: * [modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_ffmpeg.cpp.o] Error 1
+make[1]: * [modules/videoio/CMakeFiles/opencv_videoio.dir/all] Error 2
+make: * [all] Error 2
+tar jxvf OpenCV-version.tar.bz2
+mkdir release
+cd release
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_PYTHON_SUPPORT=ON BUILD_EXAMPLES=ON ..
+-DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules 可用于添加编译opencv_contrib
+process cmake或者使用cmake-gui用图形界面编译
+执行结果参考，需要注意java、ant等是否OK
+make
+compile source code
+sudo make install
+cd bin
+./opencv_test_core
+check the result
+[----------] Global test environment tear-down
+[==========] 112 tests from 88 test cases ran. (97721 ms total)
+[  PASSED  ] 112 tests.
+
+4.测试程序
+4.1 创建测试程序
+//DisplayImage.cpp
+#include <opencv/cv.h>
+#include <opencv2/highgui.hpp>
+using namespace cv;
+int main( int argc, char** argv )
+{
+    Mat image;
+    image = imread( argv[1], 1);
+    if( argc != 2 || !image.data ){
+        printf( "No image data \n" );
+        return -1;
+    }
+    namedWindow( "Display Image", CV_WINDOW_AUTOSIZE );
+    imshow( "Display Image", image );
+    waitKey(0);
+    imwrite("copy.jpg", image);//完成图片拷贝
+    return 0;
+}
+
+
+4.2 创建CMakeLists.txt
+// CMakeLists.txt
+project(DisplayImage)
+find_package(OpenCV REQUIRED)
+add_executable(DisplayImage DisplayImage)
+target_link_libraries(DisplayImage ${OpenCV_LIBS})
+
+
+4.3 拷贝测试图片
+
+opencv-3.0.0/samples/data/lena.jpg
+
+4.4 cmake .
+
+4.5 make
+
+4.6 ./DisplayImage lena.jpg
+
+Use OpenCV
+gcc `pkg-config --cflags opencv` `pkg-config --libs opencv` -o my-opencv-prgm my-opencv-prgm.c
+Simpler way is as below:
+gcc `pkg-config --cflags --libs opencv` -o my-opencv-prgm my-opencv-prgm.c
+If those two fails, try this:
+gcc -I/where/you/have/installed/opencv -L/where/you/have/installed/opencv -lcv -lhighgui -lstdc++ \
+    -o my-opencv-prgm my-opencv-prgm.c
+
+
+
+Eclipse
+1.下载openCV SDK
+2.import the OpenCV project（OpenCV-2.4.2-android-sdk）
+3.set OpenCV project as the library project
+4.put libopencv_java.so in libs/armeabi of target project
+5.put opencv library - 2.4.2.jar in libs
+6.add opencv library - 2.4.2.jar in build path
+7.add static{ OpenCVLoader.initDebug(); } in java code
+
+Android
+ https://github.com/taka-no-me/android-cmake
+ http://docs.opencv.org/2.4/doc/tutorials/introduction/android_binary_package/dev_with_OCV_on_Android.html
+ opencv-3.1.0/platforms/android/android.toolchain.cmake
+$ export ANDROID_NDK=/absolute/path/to/the/android-ndk
+$ mkdir build && cd build
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../platforms/android/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_FORCE_ARM_BUILD=ON -DANDROID_STL=gnustl_static -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules/  ..
+$ make -j8
+
+cmake -DCMAKE_TOOLCHAIN_FILE=android.toolchain.cmake \
+     -DANDROID_NDK=<ndk_path>                       \
+     -DCMAKE_BUILD_TYPE=Release                     \
+     -DANDROID_ABI="armeabi-v7a with NEON"          \
+     <source_path>
+cmake --build .
+
+cmake -DCMAKE_TOOLCHAIN_FILE=cmake -DCMAKE_TOOLCHAIN_FILE=/home/ckt/work/workspace/opencv/opencv-3.1.0/platforms/android/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DCMAKE_BUILD_TYPE=Release 
+/home/ckt/work/workspace/opencv/opencv-3.1.0
+如果需要编译CONTRIB到opencv， 则可修改opencv-3.1.0/CMakeLists.txt 
+set(OPENCV_EXTRA_MODULES_PATH "/home/ckt/work/workspace/opencv/opencv_contrib/modules" CACHE PATH "Where to look for additional OpenCV modules")
