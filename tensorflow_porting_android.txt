@@ -1,4 +1,6 @@
-移植TensorFlow到android主要过程如下：
+参考https://www.tensorflow.org/mobile/android_build
+源码移植TensorFlow到android主要过程如下：
+
 1.预备知识:
 TensorFlow的核心使用C++写的，因此可以预期编译出来是so库，对外提供模型、标签加载、输入和输出接口
 Android调用一般使用JNI调用，因此需要有SO库，同时对Android层提供Java包
