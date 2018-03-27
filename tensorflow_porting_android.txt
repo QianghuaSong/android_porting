@@ -1,0 +1,70 @@
+移植TensorFlow到android主要过程如下：
+1.预备知识:
+TensorFlow的核心使用C++写的，因此可以预期编译出来是so库，对外提供模型、标签加载、输入和输出接口
+Android调用一般使用JNI调用，因此需要有SO库，同时对Android层提供Java包
+
+2.Tensorflow编译环境配置
+2.1 下载tensorflow源码：
+git clone --recurse-submodules https://github.com/tensorflow/tensorflow.git
+2.2 下载NDK和android-sdk
+2.3 下载和安装bazel
+https://docs.bazel.build/versions/master/install-ubuntu.html
+我使用的是Installing using binary installer
+
+3.Tensorflow编译
+3.1修改TensorFlow中的WROKSPACE，配置ndk和android sdk如下：
+android_sdk_repository(
+    name = "androidsdk",
+    api_level = 25,#目标API level
+    # Ensure that you have the build_tools_version below installed in the
+    # SDK manager as it updates periodically.
+    build_tools_version = "26.0.1",#最低支持26.0.1
+    # Replace with path to Android SDK on your system
+    path = "/home/ckt/work/android-sdk-linux",#android sdk路径
+)
+
+android_ndk_repository(
+    name="androidndk",
+    path="/home/ckt/work/android-ndk-r12b",#ndk路径
+    # This needs to be 14 or higher to compile TensorFlow.
+    # Please specify API level to >= 21 to build for 64-bit
+    # archtectures or the Android NDK will automatically select biggest
+    # API level that it supports without notice.
+    # Note that the NDK version is not the API level.
+    api_level=14)
+
+如果build_tools_version不包含支持的版本，可通过android-sdk-linux下的android工具下载更新：
+ckt@ubuntu:~/work/android-sdk-linux$ ./tools/android update sdk
+
+3.2编译tensorflow核心库
+bazel build -c opt //tensorflow/contrib/android:libtensorflow_inference.so --cpu=armeabi-v7a
+编译后生成文件在bazel-out/android-armeabi-v7a-opt/bin/tensorflow/contrib/android/
+libtensorflow_inference.so
+
+bazel build //tensorflow/contrib/android:android_tensorflow_inference_java
+libandroid_tensorflow_inference_java.jar
+
+3.3jar和jni包一般可以自己编写，然后编译生成，tensorflow demo编译命令如下：
+bazel build -c opt tensorflow/examples/android:tensorflow_demo
+
+3.4模型、标签文件下载
+tensorflow需要加载对应的模型和标签文件来完成inference，下载地址：
+https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip
+具体下载那些库可以查看demo的java源码，如下：
+demo/ClassifierActivity.java:75:  private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
+demo/ClassifierActivity.java:77:      "file:///android_asset/imagenet_comp_graph_label_strings.txt";
+demo/DetectorActivity.java:60:  private static final String MB_MODEL_FILE = "file:///android_asset/multibox_model.pb";
+demo/DetectorActivity.java:62:      "file:///android_asset/multibox_location_priors.txt";
+demo/DetectorActivity.java:66:      "file:///android_asset/ssd_mobilenet_v1_android_export.pb";
+demo/DetectorActivity.java:67:  private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/coco_labels_list.txt";
+demo/DetectorActivity.java:74:  private static final String YOLO_MODEL_FILE = "file:///android_asset/graph-tiny-yolo-voc.pb";
+demo/SpeechActivity.java:75:  private static final String LABEL_FILENAME = "file:///android_asset/conv_actions_labels.txt";
+demo/SpeechActivity.java:76:  private static final String MODEL_FILENAME = "file:///android_asset/conv_actions_frozen.pb";
+demo/StylizeActivity.java:71:  private static final String MODEL_FILE = "file:///android_asset/stylize_quantized.pb";
+
+将其解压缩放入tensorflow/examples/android/assets/，重新编译Demo即可
+
+3.5 android studio中构建
+将libtensorflow_inference.so和libtensorflow_demo.so放入jniLibs/armeabi-v7a/ 
+jar包放入libs/，添加编译配置：
+compile files('libs/libandroid_tensorflow_inference_java.jar')
