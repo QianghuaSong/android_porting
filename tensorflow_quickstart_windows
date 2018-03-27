@@ -1,0 +1,166 @@
+TensorFlow Windows Install
+本文主要介绍在Windows上如何安装TensorFlow Python开发环境，参考官网：
+
+https://www.tensorflow.org/install
+
+https://www.tensorflow.org/install/install_windows 说明
+
+软件资源：\\10.120.10.100\ckt_cd_share\SmartPhone\team\Framework\Image\Dev\tensorflow\
+Python开发环境：python-3.5.2-amd64.exe
+Python IDE：pycharm-edu-4.0.2.exe
+TensorFlow支持DLL：msvcp140.dll
+
+Python
+1. 点击python-3.5.2-amd64.exe安装即可，通常用3.5或者3.6的版本，在cmd窗口输入python检查版本如下：
+
+Python 3.5.2 (v3.5.2:4def2a2901a5, Jun 25 2016, 22:18:55) [MSC v.1900 64 bit (AMD64)] on win32
+
+如提示找不到，需要将Python加入环境变量。
+
+2. 提供msvcp140.dll支持(tensorflow requires)
+可以直接拷贝软件资源中的msvcp140.dll，也可以安装后拷贝：
+
+pip install matplotlib-2.0.2-cp35-cp35m-win_amd64.whl
+
+拷贝C:\Program Files\Python35\Lib\site-packages\matplotlib\msvcp140.dll到C:\Program Files\Python35\目录
+
+pycharm
+点击pycharm-edu-4.0.2.exe安装即可，教育版免费。
+
+tensorflow
+打开cmd窗口
+pip3 install --upgrade tensorflow
+tensorflow及相关支持包会安装，包括bleach-1.5.0 enum34-1.1.6 html5lib-0.9999999 markdown-2.6.9 numpy-1.13.3 protobuf-3.4.0 setuptools-36.7.2 tensorflow-1.4.0 tensorflow-tensorboard-0.4.0rc2 werkzeug-0.12.2 wheel-0.30.0。
+
+具体安装如下：
+Collecting tensorflow
+  Downloading tensorflow-1.4.0-cp35-cp35m-win_amd64.whl (28.3MB)
+    100% |████████████████████████████████| 28.3MB 18kB/s
+Collecting wheel>=0.26 (from tensorflow)
+  Using cached wheel-0.30.0-py2.py3-none-any.whl
+Requirement already up-to-date: six>=1.10.0 in c:\program files\python35\lib\site-packages (from tensorflow)
+Collecting enum34>=1.1.6 (from tensorflow)
+  Downloading enum34-1.1.6-py3-none-any.whl
+Collecting tensorflow-tensorboard<0.5.0,>=0.4.0rc1 (from tensorflow)
+  Downloading tensorflow_tensorboard-0.4.0rc2-py3-none-any.whl (1.7MB)
+    100% |████████████████████████████████| 1.7MB 180kB/s
+Collecting numpy>=1.12.1 (from tensorflow)
+  Downloading numpy-1.13.3-cp35-none-win_amd64.whl (13.1MB)
+    100% |████████████████████████████████| 13.1MB 72kB/s
+Collecting protobuf>=3.3.0 (from tensorflow)
+  Downloading protobuf-3.4.0-py2.py3-none-any.whl (375kB)
+    100% |████████████████████████████████| 378kB 194kB/s
+Collecting html5lib==0.9999999 (from tensorflow-tensorboard<0.5.0,>=0.4.0rc1->tensorflow)
+  Downloading html5lib-0.9999999.tar.gz (889kB)
+    100% |████████████████████████████████| 890kB 181kB/s
+Collecting bleach==1.5.0 (from tensorflow-tensorboard<0.5.0,>=0.4.0rc1->tensorflow)
+  Downloading bleach-1.5.0-py2.py3-none-any.whl
+Collecting werkzeug>=0.11.10 (from tensorflow-tensorboard<0.5.0,>=0.4.0rc1->tensorflow)
+  Downloading Werkzeug-0.12.2-py2.py3-none-any.whl (312kB)
+    100% |████████████████████████████████| 317kB 203kB/s
+Collecting markdown>=2.6.8 (from tensorflow-tensorboard<0.5.0,>=0.4.0rc1->tensorflow)
+  Downloading Markdown-2.6.9.tar.gz (271kB)
+    100% |████████████████████████████████| 276kB 181kB/s
+Collecting setuptools (from protobuf>=3.3.0->tensorflow)
+  Downloading setuptools-36.7.2-py2.py3-none-any.whl (482kB)
+    100% |████████████████████████████████| 491kB 204kB/s
+Installing collected packages: wheel, enum34, html5lib, bleach, werkzeug, markdown, numpy, setuptools, protobuf, tensorflow-tensorboard, tensorflow
+  Running setup.py install for html5lib ... done
+  Running setup.py install for markdown ... done
+  Found existing installation: numpy 1.13.1+mkl
+    Uninstalling numpy-1.13.1+mkl:
+      Successfully uninstalled numpy-1.13.1+mkl
+  Found existing installation: setuptools 20.10.1
+    Uninstalling setuptools-20.10.1:
+      Successfully uninstalled setuptools-20.10.1
+Successfully installed bleach-1.5.0 enum34-1.1.6 html5lib-0.9999999 markdown-2.6.9 numpy-1.13.3 protobuf-3.4.0 setuptools-36.7.2 tensorflow-1.4.0 tensorflow-tensorboard-0.4.0rc2 werkzeug-0.12.2 wheel-0.30.0
+
+
+
+验证
+打开pycharm->新建工程->新建Python File，输入代码：
+
+import tensorflow as tf
+hello = tf.constant("Hello, TensorFlow!")
+sess = tf.Session()
+print(sess.run(hello))
+
+
+
+运行结果：
+b'Hello, TensorFlow!'
+
+Process finished with exit code 0
+
+
+
+支持库
+keras
+打开cmd窗口
+pip install keras --upgrade
+主要包含keras、pyyaml、scipy三个包
+C:\Users\DELL>pip install keras --upgrade
+Collecting keras
+  Downloading Keras-2.1.1-py2.py3-none-any.whl (302kB)
+    100% |████████████████████████████████| 307kB 178kB/s
+Requirement already up-to-date: six>=1.9.0 in c:\program files\python35\lib\site-packages (from keras)
+Collecting scipy>=0.14 (from keras)
+  Downloading scipy-1.0.0-cp35-none-win_amd64.whl (30.8MB)
+    100% |████████████████████████████████| 30.8MB 35kB/s
+Requirement already up-to-date: numpy>=1.9.1 in c:\program files\python35\lib\site-packages (from keras)
+Collecting pyyaml (from keras)
+  Downloading PyYAML-3.12-cp35-cp35m-win_amd64.whl (195kB)
+    100% |████████████████████████████████| 204kB 226kB/s
+Installing collected packages: scipy, pyyaml, keras
+  Found existing installation: scipy 1.0.0b1
+    Uninstalling scipy-1.0.0b1:
+      Successfully uninstalled scipy-1.0.0b1
+Successfully installed keras-2.1.1 pyyaml-3.12 scipy-1.0.0
+
+
+
+h5py
+打开cmd窗口
+pip3 install h5py
+Collecting h5py
+  Downloading h5py-2.7.1-cp35-cp35m-win_amd64.whl (2.2MB)
+    100% |████████████████████████████████| 2.3MB 102kB/s
+Requirement already satisfied (use --upgrade to upgrade): numpy>=1.7 in c:\program files\python35\lib\site-packages (from h5py)
+Requirement already satisfied (use --upgrade to upgrade): six in c:\program files\python35\lib\site-packages (from h5py)
+Installing collected packages: h5py
+Successfully installed h5py-2.7.1
+
+
+
+skimage
+scikit-image(skimage) is a collection of algorithms for image processing.
+
+C:\Users\DELL>pip install G:\dev\AI\tensorflow\scikit_image-0.13.1-cp35-cp35m-win_amd64.whl
+Processing g:\dev\ai\tensorflow\scikit_image-0.13.1-cp35-cp35m-win_amd64.whl
+Collecting PyWavelets>=0.4.0 (from scikit-image==0.13.1)
+  Downloading PyWavelets-0.5.2-cp35-none-win_amd64.whl (4.2MB)
+    100% |████████████████████████████████| 4.2MB 91kB/s
+Requirement already satisfied (use --upgrade to upgrade): six>=1.7.3 in c:\program files\python35\lib\site-packages (from scikit-image==0.13.1)
+Requirement already satisfied (use --upgrade to upgrade): pillow>=2.1.0 in c:\program files\python35\lib\site-packages (from scikit-image==0.13.1)
+Collecting networkx>=1.8 (from scikit-image==0.13.1)
+  Downloading networkx-2.0.zip (1.5MB)
+    100% |████████████████████████████████| 1.6MB 46kB/s
+Requirement already satisfied (use --upgrade to upgrade): numpy>=1.9.1 in c:\program files\python35\lib\site-packages (from PyWavelets>=0.4.0->scikit-image==0.13.1)
+Requirement already satisfied (use --upgrade to upgrade): olefile in c:\program files\python35\lib\site-packages (from pillow>=2.1.0->scikit-image==0.13.1)
+Collecting decorator>=4.1.0 (from networkx>=1.8->scikit-image==0.13.1)
+  Downloading decorator-4.1.2-py2.py3-none-any.whl
+Building wheels for collected packages: networkx
+  Running setup.py bdist_wheel for networkx ... done
+  Stored in directory: C:\Users\DELL\AppData\Local\pip\Cache\wheels\27\82\23\785d5d01de2271edf929ac2761cb5dafc0dfa76a0861bfd128
+Successfully built networkx
+Installing collected packages: PyWavelets, decorator, networkx, scikit-image
+Successfully installed PyWavelets-0.5.2 decorator-4.1.2 networkx-2.0 scikit-image-0.13.1
+
+
+
+from skimage import data, io, filters
+
+image = data.coins()
+edges = filters.sobel(image)
+io.imshow(edges)
+io.show()
