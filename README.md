@@ -2,6 +2,6 @@
 step by step porting on android device
 
 # 20180327
-<br>porting tensorflow on android
-<br>build opencv on ubuntu, eclipse and android
-<br>quick start tensorflow python on windows
+1.porting tensorflow on android
+<br>2.build opencv on ubuntu, eclipse and android
+<br>3.quick start tensorflow python on windows
