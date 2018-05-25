@@ -70,3 +70,11 @@ demo/StylizeActivity.java:71:  private static final String MODEL_FILE = "file://
 将libtensorflow_inference.so和libtensorflow_demo.so放入jniLibs/armeabi-v7a/ 
 jar包放入libs/，添加编译配置：
 compile files('libs/libandroid_tensorflow_inference_java.jar')
+
+4.TensorFlow lite 编译
+参考：https://www.tensorflow.org/mobile/tflite/demo_android
+4.1 APK直接安装 
+4.2 Android Studio导入tensorflow/contrib/lite/java/demo
+4.3 源码安装：
+条件：android-ndk-r14b,androidsdk,build tool > 23
+bazel build -c opt --cxxopt='--std=c++11' //tensorflow/contrib/lite/java/demo/app/src/main:TfLiteCameraDemo
