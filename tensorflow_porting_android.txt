@@ -78,3 +78,28 @@ compile files('libs/libandroid_tensorflow_inference_java.jar')
 4.3 源码安装：
 条件：android-ndk-r14b,androidsdk,build tool > 23
 bazel build -c opt --cxxopt='--std=c++11' //tensorflow/contrib/lite/java/demo/app/src/main:TfLiteCameraDemo
+
+4.4 最新版tflite使用：
+# Download and extract SSD MobileNet model 下载模型
+wget http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_2017_11_17.tar.gz
+tar -xvf ssd_mobilenet_v1_coco_2017_11_17.tar.gz 
+DETECT_PB=$PWD/ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb
+STRIPPED_PB=$PWD/frozen_inference_graph_stripped.pb
+DETECT_FB=$PWD/tensorflow/contrib/lite/examples/android/assets/mobilenet_ssd.tflite
+
+# Strip out problematic nodes before even letting TOCO see the graphdef 模型Strip
+bazel run -c opt tensorflow/python/tools/optimize_for_inference -- \
+--input=$DETECT_PB  --output=$STRIPPED_PB --frozen_graph=True \
+--input_names=Preprocessor/sub --output_names=concat,concat_1 \
+--alsologtostderr
+
+# Run TOCO conversion. pb模型转为tflite模型
+bazel run tensorflow/contrib/lite/toco:toco -- \
+--input_file=$STRIPPED_PB --output_file=$DETECT_FB \
+--input_format=TENSORFLOW_GRAPHDEF --output_format=TFLITE \
+--input_shapes=1,300,300,3 --input_arrays=Preprocessor/sub \
+--output_arrays=concat,concat_1 --inference_type=FLOAT --logtostderr
+
+# Build and install the demo 编译和安装新tflite demo
+bazel build -c opt --cxxopt='--std=c++11' //tensorflow/contrib/lite/examples/android:tflite_demo
+adb install -r -f bazel-bin/tensorflow/contrib/lite/examples/android/tflite_demo.apk
