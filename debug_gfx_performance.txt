@@ -1,0 +1,16 @@
+问题：UI界面卡顿确认？ -> 帧率是否达到60fps？
+一、绘制流程
+Draw -> Prepare(5.1 render thread) -> Process -> Execute
+1.Draw:onDraw(),创建displayList
+2.Prepare：安卓5.1之后才有，用于将UI线程displayList传入Render Thread
+3.Process：渲染displayList
+4.Execute：swapBuffer完成显示，安卓4.1之后有3块用于显示的buffer
+
+二、分析工具
+安卓4.1后在开发者选项中开启Profile GPU rendering
+1.adb shell dumpsys gfxinfo pkgName > gfx.txt 
+将结果拷贝到excel观察总时长分布，以及draw、process和execute的总时长，分析哪一步耗时
+2.systrace
+查看surfaceFlinger是否连续，draw是否连续...
+3.traceview
+DDMS中看方法执行连续性以及时长是否小于16ms
