@@ -1,0 +1,31 @@
+# flow of pb2lite
+①找到模型输入和输出：
+$summarize_graph --in_graph=object_detection/ssd_model/ssd_mobilenet/frozen_inference_graph.pb 
+Found 1 possible inputs: (name=image_tensor, type=uint8(4), shape=[1,?,?,3]) 
+No variables spotted.
+Found 4 possible outputs: (name=detection_boxes, op=Identity) (name=detection_scores, op=Identity) (name=detection_classes, op=Identity) (name=num_detections, op=Identity) 
+Found 6849816 (6.85M) const parameters, 0 (0) variable parameters, and 383 control_edges
+Op types used: 2281 Const, 549 Gather, 452 Minimum, 366 Reshape, 360 Maximum, 255 Mul, 238 Sub, 224 Identity, 219 Cast, 192 Add, 186 Greater, 180 Split, 180 Where, 163 Slice, 152 ConcatV2, 128 StridedSlice, 108 Pack, 101 Shape, 97 Squeeze, 96 Unpack, 90 ZerosLike, 90 NonMaxSuppression, 44 ExpandDims, 39 Fill, 36 Tile, 35 Relu6, 35 Rsqrt, 34 Conv2D, 28 RealDiv, 23 Switch, 21 Range, 13 DepthwiseConv2dNative, 12 BiasAdd, 8 Merge, 6 Enter, 6 Sqrt, 5 Assert, 4 Equal, 3 Rank, 3 Transpose, 2 All, 2 Exp, 2 NextIteration, 2 TensorArrayV3, 2 GreaterEqual, 1 LoopCond, 1 Size, 1 TensorArrayGatherV3, 1 TensorArrayReadV3, 1 TensorArrayScatterV3, 1 TensorArraySizeV3, 1 Sigmoid, 1 TensorArrayWriteV3, 1 Exit, 1 TopKV2, 1 ResizeBilinear, 1 LogicalAnd, 1 Less, 1 Placeholder
+
+②frozen模型
+
+
+③optimize_for_inference
+$bazel-bin/tensorflow/python/tools/optimize_for_inference --input=MODELS/graph.pb --output=MODELS/frozen_graph.pb --input_names=image_tensor --output_names=detection_boxes,detection_scores,detection_classes,num_detections --frozen_graph=true --toco_compatible=true？？
+
+③删除多余节点，并量化权重??
+$ bazel-bin/tensorflow/tools/graph_transforms/transform_graph --in_graph=frozen_graph.pb --out_graph=optimized_graph.pb --inputs=image_tensor --outputs=detection_boxes,detection_scores,detection_classes,num_detections --transforms="strip_unused_nodes fold_batch_norms fold_constants quantize_weights"
+
+④PB转tflite
+bazel-bin/tensorflow/contrib/lite/toco/toco --input_file=optimized_graph.pb --input_format=TENSORFLOW_GRAPHDEF --output_format=TFLITE --output_file=neil.tflite --inference_type=QUANTIZED_UINT8 --input_shape=1,224,224,3 --input_array=input --output_array=MobilenetV1/Predictions/Reshape_1
+
+
+bazel-bin/tensorflow/contrib/lite/toco/toco --input_file=MODELS/opt_graph.pb --input_format=TENSORFLOW_GRAPHDEF --output_format=TFLITE --output_file=neil233.tflite --inference_type=QUANTIZED_UINT8 --input_array=image_tensor --output_array=detection_boxes,detection_scores,detection_classes,num_detections 
+
+## Android ：
+性能分析思考：
+MessageQueue.IdleHandler：可用于查询主线程状态
+ViewTreeObserver：监听OnGlobalLayoutListener，OnDrawListener，onFocusChange，onScorllChanged
+Choreographer.FrameCallback：用于监听绘制回调
+AOP：利用Aspectj注入代码，无侵入实现各种功能，比如一个注解请求权限
+
